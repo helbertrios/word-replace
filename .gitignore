@@ -1,0 +1,26 @@
+# IDEs and Editors
+.project
+.classpath
+.settings/
+.metadata/
+.idea
+.idea/
+*.sublime-workspace
+.c9/
+*.launch
+*.iml
+
+# Compiled Output
+target/
+bin/
+dist/
+
+# Tests
+*.log
+*.db
+*.old
+tmp/
+
+# System Files
+.DS_Store
+Thumbs.db
