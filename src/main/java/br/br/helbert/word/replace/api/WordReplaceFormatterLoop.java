@@ -4,13 +4,11 @@ import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
-import org.apache.xmlbeans.XmlCursor;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPPr;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTRPr;
 import org.slf4j.LoggerFactory;
 
-
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Map;
 
 
@@ -21,7 +19,7 @@ class WordReplaceFormatterLoop extends WordReplacePoi {
     private final XWPFDocument wdoc;
     private final Map<String, Object> values;
 
-    private StringBuilder log;
+    private final StringBuilder log;
 
     WordReplaceFormatterLoop(final XWPFDocument wdoc, final Map<String, Object> values) {
         super(wdoc);
@@ -263,11 +261,10 @@ class WordReplaceFormatterLoop extends WordReplacePoi {
         for (int i = 0; i < this.wdoc.getParagraphs().size(); i++) {
             final XWPFParagraph p = wdoc.getParagraphs().get(i);
             logger.info("paragraph " + i + ": " + p.getText());
-            this.log.append("paragraph " + i + ": " + p.getText()+"\n");
+            this.log.append("paragraph " + i + ": " + p.getText() + "\n");
         }
         this.log.append("------------------------------------------------------------------------------------\n");
     }
-
 
 
 }

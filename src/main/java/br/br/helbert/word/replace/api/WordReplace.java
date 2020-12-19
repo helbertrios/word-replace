@@ -42,18 +42,18 @@ public class WordReplace {
 
     public static void INITlIST(String key, Map<String, Object> values, List l, int index) {
         if (index == 0) {
-            values.put((key + WRCP.SCRIPT_LOOP.LOOP_SIZE), l.size());
+            values.put((key + WordReplaceCharacterLoop.LOOP_SIZE), l.size());
         }
         values.put((key + INDEX(index)), index);
         values.put((key + POS(index)), (index + 1));
     }
 
     public static String INDEX(int i) {
-        return WRCP.SCRIPT_LOOP.OPEN_SCRIPT_LOOP + i + WRCP.SCRIPT_LOOP.CLOSE_SCRIPT_LOOP + WRCP.SCRIPT_LOOP.LOOP_INDEX;
+        return WordReplaceCharacterLoop.OPEN_SCRIPT_LOOP + i + WordReplaceCharacterLoop.CLOSE_SCRIPT_LOOP + WordReplaceCharacterLoop.LOOP_INDEX;
     }
 
     public static String POS(int i) {
-        return WRCP.SCRIPT_LOOP.OPEN_SCRIPT_LOOP + i +WRCP.SCRIPT_LOOP.CLOSE_SCRIPT_LOOP + WRCP.SCRIPT_LOOP.LOOP_POS;
+        return WordReplaceCharacterLoop.OPEN_SCRIPT_LOOP + i + WordReplaceCharacterLoop.CLOSE_SCRIPT_LOOP + WordReplaceCharacterLoop.LOOP_POS;
     }
 
     public void replace() {

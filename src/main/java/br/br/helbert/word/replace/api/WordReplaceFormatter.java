@@ -3,8 +3,6 @@ package br.br.helbert.word.replace.api;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPPr;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTRPr;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;

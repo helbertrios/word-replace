@@ -7,12 +7,12 @@ class WordReplaceCharacterFormat {
 
     static final String OPEN_FORMAT_STRING = OPEN_FORMAT.toString();
     static final String CLOSE_FORMAT_STRING = CLOSE_FORMAT.toString();
-
+    private static final Object mutex = new Object();
     private static volatile WordReplaceCharacterFormat instance;
-    private static Object mutex = new Object();
 
 
-    private WordReplaceCharacterFormat() { }
+    private WordReplaceCharacterFormat() {
+    }
 
     static WordReplaceCharacterFormat getInstance() {
         WordReplaceCharacterFormat result = instance;
@@ -27,7 +27,9 @@ class WordReplaceCharacterFormat {
     }
 
     public String getContentByScriptFormat(final String script) {
-        if (script == null || WRCP.WORD_STRING_EMPTY.equals(script)) { return null; }
+        if (script == null || WRCP.WORD_STRING_EMPTY.equals(script)) {
+            return null;
+        }
         String content = script.replace(OPEN_FORMAT_STRING, WRCP.WORD_STRING_EMPTY);
         content = content.replace(CLOSE_FORMAT_STRING, WRCP.WORD_STRING_EMPTY);
         return content;
@@ -35,9 +37,13 @@ class WordReplaceCharacterFormat {
 
     public String getContent(final String text) {
         final WordReplaceIndex wri = this.getIndex(text);
-        if (wri == null) { return null; }
+        if (wri == null) {
+            return null;
+        }
         final String script = this.getScriptFormat(text, wri);
-        if (script == null || WRCP.WORD_STRING_EMPTY.equals(script)) { return null; }
+        if (script == null || WRCP.WORD_STRING_EMPTY.equals(script)) {
+            return null;
+        }
         String content = script.replace(OPEN_FORMAT_STRING, WRCP.WORD_STRING_EMPTY);
         content = content.replace(CLOSE_FORMAT_STRING, WRCP.WORD_STRING_EMPTY);
         return content;
@@ -45,7 +51,9 @@ class WordReplaceCharacterFormat {
 
     public String getScriptFormat(final String text) {
         final WordReplaceIndex wri = this.getIndex(text);
-        if (wri == null) { return null; }
+        if (wri == null) {
+            return null;
+        }
         return this.getScriptFormat(text, wri);
     }
 
@@ -59,11 +67,12 @@ class WordReplaceCharacterFormat {
     public WordReplaceIndex getIndex(final String text) {
         final int indexBegin = WRTU.getIndexBegin(text, 0, OPEN_FORMAT_STRING);
         final int indexEnd = WRTU.getIndexEnd(text, 0, CLOSE_FORMAT_STRING);
-        if (indexBegin == 0 || indexEnd == 0) { return null; }
+        if (indexBegin == 0 || indexEnd == 0) {
+            return null;
+        }
         WordReplaceIndex wri = new WordReplaceIndex(indexBegin, indexEnd);
         return wri;
     }
-
 
 
 }

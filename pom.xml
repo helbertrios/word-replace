@@ -19,6 +19,8 @@
 		<version.war.plugin>2.1.1</version.war.plugin>
 
 		<version.jboss.bom.eap>6.4.0.GA</version.jboss.bom.eap>
+
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	
 
@@ -66,24 +68,51 @@
 				<scope>import</scope>
 			</dependency>
 
+			<!-- JACKSON -->
 			<dependency>
-				<groupId>com.aspose</groupId>
-				<artifactId>aspose-words</artifactId>
-				<version>20.1</version>
-				<type>pom</type>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-databind</artifactId>
+				<version>2.8.9</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-annotations</artifactId>
+				<version>2.8.9</version>
+			</dependency>
+
+			<!-- APACHE POI -->
+			<dependency>
+				<groupId>org.apache.poi</groupId>
+				<artifactId>poi</artifactId>
+				<version>3.17</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.poi</groupId>
+				<artifactId>poi-ooxml</artifactId>
+				<version>3.17</version>
+			</dependency>
+
+			<!-- SLF4J -->
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>1.7.2.redhat-3</version>
 			</dependency>
 
 		</dependencies>
 	</dependencyManagement>
 
 	<dependencies>
-		<!-- Servlet API -->
+
+		<!-- SERVLET API -->
 		<dependency>
 			<groupId>org.jboss.spec.javax.servlet</groupId>
 			<artifactId>jboss-servlet-api_3.0_spec</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		
+
 		<!-- JACKSON -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
@@ -103,6 +132,23 @@
 			<artifactId>jackson-annotations</artifactId>
 			<version>2.8.9</version>
 			<scope>provided</scope>
+		</dependency>
+
+		<!-- APACHE POI -->
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+		</dependency>
+
+		<!-- SLF4J -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
 		</dependency>
 
 	</dependencies>
@@ -126,7 +172,8 @@
 				<artifactId>maven-war-plugin</artifactId>
 				<version>${version.war.plugin}</version>
 				<configuration>
-					<failOnMissingWebXml>false</failOnMissingWebXml>
+					<packagingExcludes>WEB-INF/web.xml</packagingExcludes>
+					<failOnMissingWebXml>true</failOnMissingWebXml>
 					<archive>
 						<manifest>
 							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
@@ -145,10 +192,6 @@
 
 		<pluginManagement>
 			<plugins>
-				<!-- The JBoss AS plugin deploys your ear to a local JBoss EAP container -->
-				<!-- Due to Maven's lack of intelligence with EARs we need to configure 
-					the jboss-as maven plugin to skip deployment for all modules. We then enable 
-					it specifically in the ear module. -->
 				<plugin>
 					<groupId>org.jboss.as.plugins</groupId>
 					<artifactId>jboss-as-maven-plugin</artifactId>

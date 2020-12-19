@@ -39,19 +39,19 @@ class WordReplaceLoopNode {
 
     String getTextForReplace(int pos) {
         final String nameWithoutLabel = this.getLoopLabeltWithouID();
-        String tfr = nameWithoutLabel + WRCP.SCRIPT_LOOP.OPEN_SCRIPT_LOOP + pos +  WRCP.SCRIPT_LOOP.CLOSE_SCRIPT_LOOP;
+        String tfr = nameWithoutLabel + WordReplaceCharacterLoop.OPEN_SCRIPT_LOOP + pos + WordReplaceCharacterLoop.CLOSE_SCRIPT_LOOP;
         return tfr;
     }
 
     String getKeySize() {
         final String nameWithoutLabel = this.getLoopLabeltWithouID();
-        String keySize = nameWithoutLabel + WRCP.SCRIPT_LOOP.LOOP_SIZE;
+        String keySize = nameWithoutLabel + WordReplaceCharacterLoop.LOOP_SIZE;
         return keySize;
     }
 
     String getLoopLabeltWithouID() {
-        if (loopLabel.contains(WRCP.SCRIPT_LOOP.LABEL_LOOP)) {
-            String[] s = loopLabel.split(WRCP.SCRIPT_LOOP.LABEL_LOOP);
+        if (loopLabel.contains(WordReplaceCharacterLoop.LABEL_LOOP)) {
+            String[] s = loopLabel.split(WordReplaceCharacterLoop.LABEL_LOOP);
             return s[1];
         }
         return loopLabel;

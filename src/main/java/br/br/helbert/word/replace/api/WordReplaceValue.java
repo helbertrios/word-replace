@@ -1,6 +1,5 @@
 package br.br.helbert.word.replace.api;
 
-import br.gov.caixa.bsb.siatd.ejb.utils.tools.MiscUtils;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
@@ -23,11 +22,11 @@ class WordReplaceValue {
     private static final String booleanDefaultFormat = "Sim/Não";
     private final List<WordReplaceItem> wrs;
     private final String script;
-    private String format;
-    private String scriptFormat;
     private final String keyValue;
     private final Object value;
     private final String valueFormat;
+    private String format;
+    private String scriptFormat;
 
     WordReplaceValue(Map<String, Object> values, String script) {
         this.script = script;
@@ -155,7 +154,7 @@ class WordReplaceValue {
             valueText = WRCP.WORD_TEXT_EMPTY;
         } else {
             String[] formats = getFormats(format);
-            final SimpleDateFormat sdf = new SimpleDateFormat(formats[0], MiscUtils.localeBR);
+            final SimpleDateFormat sdf = new SimpleDateFormat(formats[0], WRCP.localeBR);
             valueText = sdf.format(value);
             valueText = formatCase(formats[1], valueText);
         }

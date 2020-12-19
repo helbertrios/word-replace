@@ -4,11 +4,11 @@ class WordReplaceCharacterScript {
 
     static final String OPEN_SCRIPT = "{{";
     static final String CLOSE_SCRIPT = "}}";
-
+    private static final Object mutex = new Object();
     private static volatile WordReplaceCharacterScript instance;
-    private static Object mutex = new Object();
 
-    private WordReplaceCharacterScript() { }
+    private WordReplaceCharacterScript() {
+    }
 
     static WordReplaceCharacterScript getInstance() {
         WordReplaceCharacterScript result = instance;
@@ -37,7 +37,9 @@ class WordReplaceCharacterScript {
     }
 
     String getScriptKey(final String script, final String scriptFormat) {
-        if (script == null) { return null; }
+        if (script == null) {
+            return null;
+        }
         final String scriptWithScriptFormat = scriptFormat == null ? script : script.replace(scriptFormat, WRCP.WORD_STRING_EMPTY);
         final String content = this.getContent(scriptWithScriptFormat);
         return content;
@@ -49,10 +51,10 @@ class WordReplaceCharacterScript {
         boolean isReplace = true;
         for (int i = 0; i < content.length(); i++) {
             char c = content.charAt(i);
-            if (c == WRCP.SCRIPT_FORMAT.OPEN_FORMAT) {
+            if (c == WordReplaceCharacterFormat.OPEN_FORMAT) {
                 isReplace = false;
             }
-            if (c ==  WRCP.SCRIPT_FORMAT.CLOSE_FORMAT) {
+            if (c == WordReplaceCharacterFormat.CLOSE_FORMAT) {
                 isReplace = true;
             }
             if (c == ' ') {
@@ -88,11 +90,12 @@ class WordReplaceCharacterScript {
     public WordReplaceIndex getIndex(final String text, final int fromIndex) {
         final int indexBegin = WRTU.getIndexBegin(text, fromIndex, OPEN_SCRIPT);
         final int indexEnd = WRTU.getIndexEnd(text, fromIndex, CLOSE_SCRIPT);
-        if (indexBegin == 0 || indexEnd == 0) { return null; }
+        if (indexBegin == 0 || indexEnd == 0) {
+            return null;
+        }
         WordReplaceIndex wri = new WordReplaceIndex(indexBegin, indexEnd);
         return wri;
     }
-
 
 
 }

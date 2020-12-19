@@ -1,8 +1,6 @@
 package br.br.helbert.word.replace.api;
 
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.apache.xmlbeans.XmlCursor;
@@ -91,7 +89,7 @@ class WordReplacePoi {
 
     void removeAllRuns(final XWPFParagraph p) {
         final int beginRun = 0;
-        final int endRun = p.getRuns().size()-1;
+        final int endRun = p.getRuns().size() - 1;
         for (int j = endRun; j >= beginRun; j--) {
             p.removeRun(j);
         }
