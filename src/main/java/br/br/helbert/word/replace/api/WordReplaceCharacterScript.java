@@ -41,41 +41,30 @@ class WordReplaceCharacterScript {
             return null;
         }
         final String scriptWithScriptFormat = scriptFormat == null ? script : script.replace(scriptFormat, WRCP.WORD_STRING_EMPTY);
-        final String content = this.getContent(scriptWithScriptFormat);
+        final String content = this.getContent(scriptWithScriptFormat).trim();
         return content;
     }
 
     String getScriptFormatter(final String scriptIN) {
-        String content = scriptIN.trim();
-        String contentFinal = "";
-        boolean isReplace = true;
-        for (int i = 0; i < content.length(); i++) {
-            char c = content.charAt(i);
-            if (c == WordReplaceCharacterFormat.OPEN_FORMAT) {
-                isReplace = false;
-            }
-            if (c == WordReplaceCharacterFormat.CLOSE_FORMAT) {
-                isReplace = true;
-            }
-            if (c == ' ') {
-                if (!isReplace) {
-                    contentFinal += c;
-                }
-            } else {
-                contentFinal += c;
+        if (scriptIN == null || scriptIN.length() == 0) { return null; }
+        if (WRCP.SCRIPT_LOOP.isLoopOpen(scriptIN)) {
+            return scriptIN;
+        }
+
+        StringBuilder content = new StringBuilder();
+        Character characterSpecial = null;
+        for (int i = 0; i < scriptIN.length(); i++) {
+            Character c = scriptIN.charAt(i);
+            characterSpecial = WRCP.SCRIPT_FORMAT.getCharacterEspecial(c, characterSpecial);
+            if ((!WRCP.SPACE.equals(c)) || characterSpecial != null) {
+                content.append(c);
             }
         }
-        return contentFinal;
+        return content.toString();
     }
 
 
-    public String getContentWithFormat(final String text, final WordReplaceIndex wri) {
-        final String script = this.getScript(text, wri);
-        final String content = this.getContent(script);
-        return content;
-    }
-
-    private String getContent(final String script) {
+    public String getContent(final String script) {
         final String aux = script.replace(OPEN_SCRIPT, WRCP.WORD_STRING_EMPTY);
         final String content = aux.replace(CLOSE_SCRIPT, WRCP.WORD_STRING_EMPTY);
         return content;

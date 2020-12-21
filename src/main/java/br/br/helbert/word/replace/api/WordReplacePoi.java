@@ -15,7 +15,6 @@ class WordReplacePoi {
         this.wdoc = wdoc;
     }
 
-
     XWPFParagraph cloneParagraph(final XWPFParagraph source, final XWPFParagraph before) {
         final XmlCursor cur = before.getCTP().newCursor();
         cur.toNextSibling();

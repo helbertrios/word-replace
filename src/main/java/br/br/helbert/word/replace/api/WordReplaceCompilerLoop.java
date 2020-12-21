@@ -1,5 +1,6 @@
 package br.br.helbert.word.replace.api;
 
+import com.fasterxml.jackson.databind.node.IntNode;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
@@ -12,23 +13,23 @@ import java.io.IOException;
 import java.util.Map;
 
 
-class WordReplaceFormatterLoop extends WordReplacePoi {
+class WordReplaceCompilerLoop extends WordReplacePoi {
 
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(WordReplaceFormatterLoop.class);
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(WordReplaceCompilerLoop.class);
 
     private final XWPFDocument wdoc;
     private final Map<String, Object> values;
 
     private final StringBuilder log;
 
-    WordReplaceFormatterLoop(final XWPFDocument wdoc, final Map<String, Object> values) {
+    WordReplaceCompilerLoop(final XWPFDocument wdoc, final Map<String, Object> values) {
         super(wdoc);
         this.wdoc = wdoc;
         this.values = values;
         this.log = new StringBuilder();
     }
 
-    void formatter() {
+    void compile() {
         try {
             this.logDoc();
             this.findLoops();
@@ -38,7 +39,7 @@ class WordReplaceFormatterLoop extends WordReplacePoi {
     }
 
     private void logWrite() {
-        try (FileOutputStream oS = new FileOutputStream(new File("D:\\dev\\tmp\\arquivos\\modelo-documento\\log.txt"))) {
+        try (FileOutputStream oS = new FileOutputStream(new File("D:\\dev\\tmp\\arquivos\\word-replace\\log.txt"))) {
             oS.write(this.log.toString().getBytes());
         } catch (IOException e) {
             e.printStackTrace();
@@ -65,9 +66,6 @@ class WordReplaceFormatterLoop extends WordReplacePoi {
         } while (wrln != null);
 
         XWPFWordExtractor ext = new XWPFWordExtractor(wdoc);
-        logger.info("clone doc: " + ext.getText());
-        logger.info("-------------------------------------------------");
-
     }
 
     private void insertRuns(final WordReplaceLoopNode wrln) {
@@ -84,16 +82,28 @@ class WordReplaceFormatterLoop extends WordReplacePoi {
             this.cloneRun(clone, r);
         }
 
-        final Integer loopSize = values.get(wrln.getKeySize()) == null ? 0 : (Integer) values.get(wrln.getKeySize());
+        final String keySize = wrln.getKeySize();
+        final Object valueObjecSize = values.get(keySize);
+        Integer loopSize = 0;
+        if (valueObjecSize != null) {
+            IntNode intNode = (IntNode) valueObjecSize;
+            loopSize = intNode.intValue();
+        }
+    
         beginRun = wrln.getBeginRun() + 1;
         endRun = wrln.getEndRun() - 1;
         for (int loopIndex = 0; loopIndex < loopSize; loopIndex++) {
+            boolean isLast =  (loopIndex+1) == loopSize;
             for (int j = beginRun; j <= endRun; j++) {
                 final XWPFRun r = source.getRuns().get(j);
                 final String text = r.getText(0);
-                if (text.contains(wrln.getLoopLabel())) {
-                    String textReplaced = text.replace(wrln.getLoopLabel(), wrln.getTextForReplace(loopIndex));
-                    this.cloneRun(clone, r, textReplaced);
+                if (WRCP.SCRIPT.isScript(text)) {
+                    if (text.contains(wrln.getLabel())) {
+                        String textReplaced = text.replace(wrln.getLabel(), wrln.getScriptReplace(loopIndex));
+                        this.cloneRun(clone, r, textReplaced);
+                    } else {
+                        this.cloneRun(clone, r);
+                    }
                 } else {
                     this.cloneRun(clone, r);
                 }
@@ -156,7 +166,14 @@ class WordReplaceFormatterLoop extends WordReplacePoi {
 
     private int insertParagraphs(final WordReplaceLoopNode wrln) {
 
-        final Integer loopSize = values.get(wrln.getKeySize()) == null ? 0 : (Integer) values.get(wrln.getKeySize());
+        final String keySize = wrln.getKeySize();
+        final Object valueObjecSize = values.get(keySize);
+        Integer loopSize = 0;
+        if (valueObjecSize != null) {
+            IntNode intNode = (IntNode) valueObjecSize;
+            loopSize = intNode.intValue();
+        }
+
 
         int posParagraphBefore = wrln.getEndParagraph();
         for (int loopIndex = 0; loopIndex < loopSize; loopIndex++) {
@@ -201,8 +218,8 @@ class WordReplaceFormatterLoop extends WordReplacePoi {
             }
             final XWPFRun r = source.getRuns().get(j);
             final String text = r.getText(0);
-            if (text.contains(wrln.getLoopLabel())) {
-                String textReplaced = text.replace(wrln.getLoopLabel(), wrln.getTextForReplace(loopIndex));
+            if (text.contains(wrln.getLabel())) {
+                String textReplaced = text.replace(wrln.getLabel(), wrln.getScriptReplace(loopIndex));
                 this.cloneRun(clone, r, textReplaced);
             } else {
                 this.cloneRun(clone, r);
@@ -215,11 +232,13 @@ class WordReplaceFormatterLoop extends WordReplacePoi {
 
     private WordReplaceLoopNode findLoopNode(final int lookFor) {
 
-        String currentScriptLoop = null;
+        //String currentScriptLoop = null;
         int indexBeginLoopParagraph = 0;
         int indexBeginLoopRun = 0;
         int indexEndLoopParagraph = 0;
         int indexEndLoopRun = 0;
+        String loopLabel = null;
+        String loopSource = null;
 
         for (int i = lookFor; i < this.wdoc.getParagraphs().size(); i++) {
             final XWPFParagraph p = wdoc.getParagraphs().get(i);
@@ -227,27 +246,24 @@ class WordReplaceFormatterLoop extends WordReplacePoi {
                 final XWPFRun r = p.getRuns().get(j);
                 final String text = r.getText(0);
                 if (WRCP.SCRIPT.isScript(text)) {
-                    final String script = WRCP.SCRIPT.getScriptFormatter(text); // WordReplaceType.SCRIPT.get().getAllContentWithoutSpace(text);
-                    if (WRCP.SCRIPT_LOOP.isLoop(script)) {
-                        if (currentScriptLoop == null) {
-                            currentScriptLoop = script;
-                            indexBeginLoopParagraph = i;
-                            indexBeginLoopRun = j;
-                        } else {
-                            if (currentScriptLoop.equals(script)) {
-                                indexEndLoopParagraph = i;
-                                indexEndLoopRun = j;
-                                String loopLabel = WRCP.SCRIPT_LOOP.getContent(script);// WordReplaceType.SCRIPT.get().getCharacterPairLoopContent(script);
-                                WordReplaceLoopNode wrln = new WordReplaceLoopNode(
-                                        indexBeginLoopParagraph,
-                                        indexEndLoopParagraph,
-                                        indexBeginLoopRun,
-                                        indexEndLoopRun,
-                                        loopLabel
-                                );
-                                return wrln;
-                            }
-                        }
+                    final String script = WRCP.SCRIPT.getScriptFormatter(text);
+                    if (WRCP.SCRIPT_LOOP.isLoopOpen(script)) {
+                        indexBeginLoopParagraph = i;
+                        indexBeginLoopRun = j;
+                        loopLabel = WRCP.SCRIPT_LOOP.getLabel(script);
+                        loopSource = WRCP.SCRIPT_LOOP.getSource(script);
+                    } else if (WRCP.SCRIPT_LOOP.isLoopClose(script)) {
+                        indexEndLoopParagraph = i;
+                        indexEndLoopRun = j;
+                        WordReplaceLoopNode wrln = new WordReplaceLoopNode(
+                                indexBeginLoopParagraph,
+                                indexEndLoopParagraph,
+                                indexBeginLoopRun,
+                                indexEndLoopRun,
+                                loopLabel,
+                                loopSource
+                        );
+                        return wrln;
                     }
                 }
             }

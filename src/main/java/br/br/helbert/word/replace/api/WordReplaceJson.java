@@ -2,6 +2,7 @@ package br.br.helbert.word.replace.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.IntNode;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -56,13 +57,25 @@ public class WordReplaceJson {
     }
 
     public void processNodeArray(final JsonNode node, final StringBuilder key) {
+        final StringBuilder keyArray = new StringBuilder(key.toString());
+        keyArray.append(WRCP.SCRIPT_LOOP.LOOP_SIZE);
         int i = 0;
         for (final JsonNode objInArray : node) {
             final StringBuilder keyElement = new StringBuilder(key.toString());
-            keyElement.append(WordReplaceCharacterLoop.OPEN_SCRIPT_LOOP + i + WordReplaceCharacterLoop.CLOSE_SCRIPT_LOOP);
+            keyElement.append(WRCP.SCRIPT_LOOP.OPEN_SCRIPT_LOOP + i + WRCP.SCRIPT_LOOP.CLOSE_SCRIPT_LOOP);
+            final String KeyArrayElement =  keyElement.toString();
             this.processNode(objInArray, keyElement);
+            final String keyIndex = KeyArrayElement + WRCP.SCRIPT_LOOP.LOOP_INDEX;
+            final IntNode index = new IntNode(i);
+            this.values.put(keyIndex, index);
             i++;
+            final String keyPos = KeyArrayElement + WRCP.SCRIPT_LOOP.LOOP_POS;
+            final IntNode pos = new IntNode(i);
+            this.values.put(keyPos, pos);
         }
+        IntNode size = new IntNode(i);
+        this.values.put(keyArray.toString(), size);
+
     }
 
 

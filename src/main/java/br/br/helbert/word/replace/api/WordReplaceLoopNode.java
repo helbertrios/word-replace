@@ -6,15 +6,16 @@ class WordReplaceLoopNode {
     private final Integer endParagraph;
     private final Integer beginRun;
     private final Integer endRun;
+    private final String label;
+    private final String source;
 
-    private final String loopLabel;
-
-    WordReplaceLoopNode(Integer beginParagraph, Integer endParagraph, Integer beginRun, Integer endRun, String loopLabel) {
+    WordReplaceLoopNode(final Integer beginParagraph, final Integer endParagraph, final Integer beginRun, final Integer endRun, final String label, final String source) {
         this.beginParagraph = beginParagraph;
         this.endParagraph = endParagraph;
         this.beginRun = beginRun;
         this.endRun = endRun;
-        this.loopLabel = loopLabel;
+        this.label = label;
+        this.source = source;
     }
 
     Integer getBeginParagraph() {
@@ -33,29 +34,24 @@ class WordReplaceLoopNode {
         return endRun;
     }
 
-    String getLoopLabel() {
-        return loopLabel;
+    String getLabel() {
+        return label;
     }
 
-    String getTextForReplace(int pos) {
-        final String nameWithoutLabel = this.getLoopLabeltWithouID();
-        String tfr = nameWithoutLabel + WordReplaceCharacterLoop.OPEN_SCRIPT_LOOP + pos + WordReplaceCharacterLoop.CLOSE_SCRIPT_LOOP;
+    public String getSource() {
+        return source;
+    }
+
+    String getScriptReplace(int pos) {
+        String tfr = this.source + WordReplaceCharacterLoop.OPEN_SCRIPT_LOOP + pos + WordReplaceCharacterLoop.CLOSE_SCRIPT_LOOP;
         return tfr;
     }
 
     String getKeySize() {
-        final String nameWithoutLabel = this.getLoopLabeltWithouID();
-        String keySize = nameWithoutLabel + WordReplaceCharacterLoop.LOOP_SIZE;
-        return keySize;
+            String keySize = this.source + WordReplaceCharacterLoop.LOOP_SIZE;
+            return keySize;
     }
 
-    String getLoopLabeltWithouID() {
-        if (loopLabel.contains(WordReplaceCharacterLoop.LABEL_LOOP)) {
-            String[] s = loopLabel.split(WordReplaceCharacterLoop.LABEL_LOOP);
-            return s[1];
-        }
-        return loopLabel;
-    }
 
     boolean isInternalLoop() {
         return beginParagraph == endParagraph;

@@ -34,7 +34,7 @@ public class DB {
     }
 
     public void loadModel() {
-        this.model = new Model(1, "My first model", new Date(), 5.13, this.actors);
+        this.model = new Model(1, "My first model", new Date(), 123456789.13, this.actors);
     }
 
     public void loadActors() {
@@ -48,34 +48,34 @@ public class DB {
         actor.getFones().add(new Fone("21", "11", "99991111"));
         actor.getFones().add(new Fone("21", "11", "99991112"));
         actor.getFones().add(new Fone("21", "11", "99991112"));
-        //actors.add(actor);
+        actors.add(actor);
 
-        actor = new Actor("Tarcísio", "Meira");
+        actor = new Actor( "Meira", "Tarcísio");
         actor.getNovels().add("Imãos Coragem.");
         actor.getNovels().add("Pátria minha.");
         actor.getNovels().add("Saramandaia.");
         actor.getFones().add(new Fone("22", "12", "99991114"));
         actor.getFones().add(new Fone("22", "12", "99991115"));
         actor.getFones().add(new Fone("22", "12", "99991116"));
-        //actors.add(actor);
+        actors.add(actor);
 
-        actor = new Actor("Glória", "Menezes");
+        actor = new Actor("Menezes", "Glória");
         actor.getNovels().add("Sangue e areia.");
         actor.getNovels().add("Brega e chique.");
         actor.getNovels().add("Torre de babel.");
         actor.getFones().add(new Fone("23", "13", "99991114"));
         actor.getFones().add(new Fone("23", "13", "99991115"));
         actor.getFones().add(new Fone("23", "13", "99991116"));
-        //actors.add(actor);
+        actors.add(actor);
 
-        actor = new Actor("Regina", "duarte");
+        actor = new Actor("Duarte", "Regina");
         actor.getNovels().add("Malu mulher.");
         actor.getNovels().add("Roque santeiro.");
         actor.getNovels().add("Rainha da sucata.");
         actor.getFones().add(new Fone("24", "14", "99991117"));
         actor.getFones().add(new Fone("24", "14", "99991118"));
         actor.getFones().add(new Fone("24", "14", "99991119"));
-        //actors.add(actor);
+        actors.add(actor);
 
     }
 

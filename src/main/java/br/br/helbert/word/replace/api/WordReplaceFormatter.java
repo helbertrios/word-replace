@@ -5,11 +5,14 @@ import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class WordReplaceFormatter extends WordReplacePoi {
+class WordReplaceFormatter extends WordReplacePoi {
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(WordReplaceFormatter.class);
 
@@ -23,7 +26,7 @@ public class WordReplaceFormatter extends WordReplacePoi {
     private final Map<Integer, Character> characterEnd;
 
 
-    public WordReplaceFormatter(XWPFDocument wdoc) {
+    WordReplaceFormatter(XWPFDocument wdoc) {
         super(wdoc);
 
         final StringBuilder sb = new StringBuilder();
@@ -53,7 +56,8 @@ public class WordReplaceFormatter extends WordReplacePoi {
         this.findScripts();
     }
 
-    public void log() {
+    void log() {
+
         for (XWPFParagraph p : wdoc.getParagraphs()) {
             for (XWPFRun r : p.getRuns()) {
                 String text = r.getText(0);
@@ -63,34 +67,46 @@ public class WordReplaceFormatter extends WordReplacePoi {
                 }
             }
         }
+
+        try (FileOutputStream oS = new FileOutputStream(new File("D:\\dev\\tmp\\arquivos\\word-replace\\log-formatter.txt"))) {
+            final StringBuilder log = new StringBuilder();
+            log.append("------------------------------------------------------------------------------------\n");
+            for (int i = 0; i < this.wdoc.getParagraphs().size(); i++) {
+                final XWPFParagraph p = wdoc.getParagraphs().get(i);
+                logger.info("paragraph " + i + ": " + p.getText());
+                log.append("paragraph " + i + ": " + p.getText() + "\n");
+            }
+            log.append("------------------------------------------------------------------------------------\n");
+            oS.write(log.toString().getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void formatter() {
 
-        logger.info("wdoc text: " + this.text);
-        logger.info("wdoc regu: " + this.regua);
-
+    void formatter() {
 
         boolean inScript = false;
         String script = "";
         int indexText = 1;
-        for (XWPFParagraph p : this.wdoc.getParagraphs()) {
-            int size = p.getRuns().size();
-            int indexRun = size - 1;
-            for (int z = 0; z < size; z++) {
-                final XWPFRun r = p.getRuns().get(z);
-                String textRun = r.getText(0);
+
+
+        int endParagraphs = this.wdoc.getParagraphs().size()-1;
+        int posBeforeForClone = endParagraphs;
+        for (int i = 0; i <= endParagraphs; i++) {
+            final XWPFParagraph sourceParagraph = this.wdoc.getParagraphs().get(i);
+            final XWPFParagraph beforeParagraph = this.wdoc.getParagraphs().get(posBeforeForClone++);
+            final XWPFParagraph cloneParagraph = this.cloneParagraph(sourceParagraph, beforeParagraph);
+
+            String textThisRun = "";
+            for (int j = 0; j < sourceParagraph.getRuns().size(); j++) {
+                final XWPFRun sourceRun = sourceParagraph.getRuns().get(j);
+                final String textRun = sourceRun.getText(0);
                 if (textRun == null) {
-                    this.cloneRun(p, r);
+                    this.cloneRun(cloneParagraph, sourceRun);
                 } else {
-                    String textThisRun = "";
-                    for (int i = 0; i < textRun.length(); i++) {
-                        if (indexText >= 243 && indexText <= 243) {
-                            logger.info("### ATENCAO ###");
-                        }
-
-                        final char c = textRun.charAt(i);
-
+                    for (int k = 0; k < textRun.length(); k++) {
+                        final Character c = textRun.charAt(k);
                         boolean inScriptPrevious = inScript;
                         inScript = this.isScript(indexText);
 
@@ -104,37 +120,41 @@ public class WordReplaceFormatter extends WordReplacePoi {
                         boolean finishText = (!inScriptPrevious) && inScript;
 
                         if (finishScript) {
-                            this.cloneRun(p, r, script);
+                            this.cloneRun(cloneParagraph, sourceRun, script);
                             script = "";
                         } else if (finishText) {
-                            this.cloneRun(p, r, textThisRun);
+                            this.cloneRun(cloneParagraph, sourceRun, textThisRun);
                             textThisRun = "";
                         }
 
                         indexText++;
-                    } //  for (int i = 0; i < textRun.length(); i++) {
+                    } //  for (int k = 0; k < textRun.length(); k++) {
 
                     boolean inScriptNext = this.isScript(indexText);
                     boolean finishScript = inScript && (!inScriptNext);
                     boolean finishText = (!inScript);
 
                     if (finishScript) {
-                        this.cloneRun(p, r, script);
+                        this.cloneRun(cloneParagraph, sourceRun, script);
                         script = "";
                     } else if (finishText) {
-                        this.cloneRun(p, r, textThisRun);
+                        this.cloneRun(cloneParagraph, sourceRun, textThisRun);
                         textThisRun = "";
                     }
-                } //  if (textRun == null)  {} else {}
-            }   // for (int z = 0; z < size; z++) {
-            for (int i = indexRun; i >= 0; i--) {
-                p.removeRun(i);
-            }
-        } // for (XWPFParagraph p : this.wdoc.getParagraphs()) {
+
+                } //   if (textRun == null) {
+            } //  for (int j = 0; j < sourceParagraph.getRuns().size(); j++) {
+        } // for (int i = 0; i < this.wdoc.getParagraphs().size(); i++) {
+
+        for (int i = endParagraphs; i >= 0; i--) {
+            final XWPFParagraph p = this.wdoc.getParagraphs().get(i);
+            this.removeParagraph(p, i);
+        }
 
         this.removeSpaceScript();
 
     }
+
 
     private void removeSpaceScript() {
 
@@ -143,11 +163,9 @@ public class WordReplaceFormatter extends WordReplacePoi {
             for (int j = 0; j < p.getRuns().size(); j++) {
                 final XWPFRun r = p.getRuns().get(j);
                 final String text = r.getText(0);
-                if (text == null || WRCP.WORD_STRING_EMPTY.equals(text)) {
-                    p.removeRun(j);
-                } else if (WRCP.SCRIPT.isScript(text)) {
+                 if (WRCP.SCRIPT.isScript(text)) {
                     final String script = WRCP.SCRIPT.getScriptFormatter(text);
-                    r.setText(script);
+                    r.setText(script, 0);
                 }
             }
         }

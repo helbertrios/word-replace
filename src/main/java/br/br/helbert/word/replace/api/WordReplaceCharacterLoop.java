@@ -4,10 +4,16 @@ class WordReplaceCharacterLoop {
 
     static final String OPEN_SCRIPT_LOOP = "[";
     static final String CLOSE_SCRIPT_LOOP = "]";
+    static final String BEGIN_LOOP_KEY = "foreach";
+    static final String END_LOOP_KEY = "/foreach";
+    static final String LOOP_SEPARATOR = "in";
+
     static final String LABEL_LOOP = ":";
-    static final String LOOP_SIZE = ".size";
-    static final String LOOP_INDEX = ".index";
-    static final String LOOP_POS = ".pos";
+    static final String LOOP_SIZE = ".$size";
+    static final String LOOP_INDEX = ".$index";
+    static final String LOOP_POS = ".$pos";
+
+
     private static final Object mutex = new Object();
     private static volatile WordReplaceCharacterLoop instance;
 
@@ -26,40 +32,49 @@ class WordReplaceCharacterLoop {
         return result;
     }
 
-
-    boolean isLoop(final String scriptIN) {
-        final String script = scriptIN.trim();
-        final int total = WordReplaceCharacterScript.OPEN_SCRIPT.length() + WordReplaceCharacterScript.CLOSE_SCRIPT.length() + 2;
-        if (script == null || script.length() < total) {
+    boolean isLoopClose(final String scriptIN) {
+        if (scriptIN == null || scriptIN.length() == 0) { return false; }
+        if (scriptIN.indexOf(END_LOOP_KEY) < 0) {
             return false;
         }
-        int i = WordReplaceCharacterScript.OPEN_SCRIPT.length() + 1;
-        int j = script.length() - (WordReplaceCharacterScript.CLOSE_SCRIPT.length() + 1);
-        String tupleBegin = script.substring(0, i);
-        String tupleEnd = script.substring(j);
 
-        String tupleBeginLoop = WordReplaceCharacterScript.OPEN_SCRIPT + OPEN_SCRIPT_LOOP;
-        String tupleEndLoop = CLOSE_SCRIPT_LOOP + WordReplaceCharacterScript.CLOSE_SCRIPT;
-
-        return tupleBeginLoop.equals(tupleBegin) && tupleEndLoop.equals(tupleEnd);
+        return true;
     }
 
-    String getContent(final String scriptIN) {
-        String script = scriptIN.trim();
-        int total = WordReplaceCharacterScript.OPEN_SCRIPT.length() + WordReplaceCharacterScript.CLOSE_SCRIPT.length() + 2;
-        if (script == null || script.length() < total) {
-            return null;
+    boolean isLoopOpen(final String scriptIN) {
+        if (scriptIN == null || scriptIN.length() == 0) { return false; }
+        if (scriptIN.indexOf(BEGIN_LOOP_KEY) < 0 && !this.isLoopClose(scriptIN)) {
+            return false;
         }
-        final int i = WordReplaceCharacterScript.OPEN_SCRIPT.length() + 1;
-        final int j = script.length() - (WordReplaceCharacterScript.CLOSE_SCRIPT.length() + 1);
-        final String tupleBegin = script.substring(0, i);
-        final String tupleEnd = script.substring(j);
-
-        final String tupleBeginLoop = WordReplaceCharacterScript.OPEN_SCRIPT + OPEN_SCRIPT_LOOP;
-        final String tupleEndLoop = CLOSE_SCRIPT_LOOP + WordReplaceCharacterScript.CLOSE_SCRIPT;
-        script = script.replace(tupleBeginLoop, WRCP.WORD_STRING_EMPTY);
-        script = script.replace(tupleEndLoop, WRCP.WORD_STRING_EMPTY);
-        return script;
+        final String content = WRCP.SCRIPT.getContent(scriptIN);
+        String scriptLessKey = content.replace(BEGIN_LOOP_KEY, WRCP.WORD_STRING_EMPTY);
+        String[] itens = scriptLessKey.split(LOOP_SEPARATOR);
+        if (itens.length < 2) {
+            return false;
+        }
+        return true;
     }
 
+    String getLabel(final String scriptIN) {
+        final String label = this.getValue(scriptIN,1);
+        return label;
+    }
+
+    String getSource(final String scriptIN) {
+        final String source = this.getValue(scriptIN,0);
+        return source;
+    }
+
+    private String[] getItens(final String scriptIN) {
+        final String content = WRCP.SCRIPT.getContent(scriptIN);
+        final String scriptLessKey = content.replace(BEGIN_LOOP_KEY, WRCP.WORD_STRING_EMPTY);
+        final String[] itens = scriptLessKey.split(LOOP_SEPARATOR);
+        return itens;
+    }
+
+    private String getValue(final String scriptIN, final int i) {
+        final String[] itens = this.getItens(scriptIN);
+        final String value = itens[i].replaceAll("\\s+", WRCP.WORD_STRING_EMPTY);
+        return value;
+    }
 }
