@@ -24,3 +24,8 @@ tmp/
 # System Files
 .DS_Store
 Thumbs.db
+
+# Project-specific files
+/template/document.docx
+/template/templateCompiled.docx
+/template/templateFormatted.docx
